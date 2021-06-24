@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -125,7 +126,6 @@ public class ProfileFragment extends Fragment {
                                 @Override
                                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
 
-
                                     boolean isFinded = false;
                                     if (task.isSuccessful()) {
                                         for (QueryDocumentSnapshot document : task.getResult()) {
@@ -156,8 +156,8 @@ public class ProfileFragment extends Fragment {
                 public void onEvent(@Nullable DocumentSnapshot snapshot,
                                     @Nullable FirebaseFirestoreException e) {
 
-                    textViewUsername.setText( "Nombre de usuario " + snapshot.getString( "username" ) );
-                    textViewEmail.setText( "Email " + snapshot.getString( "email" ) );
+                    textViewUsername.setText( "Nombre de usuario: " + snapshot.getString( "username" ) );
+                    textViewEmail.setText( "Email: " + snapshot.getString( "email" ) );
                     Glide.with( ProfileFragment.this ).load( snapshot.getString( "imgProfile" ) ).into( imgProfile );
                     selectecGroup.setText( snapshot.getString( "selectedGroup" ) );
 
@@ -218,9 +218,16 @@ public class ProfileFragment extends Fragment {
             btn_deleteAccount.setOnClickListener( new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    user.delete();
-                    Intent intent = new Intent( getActivity().getApplication(), LoginActivity.class );
-                    startActivity( intent );
+                    user.delete().addOnCompleteListener( new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            Toast.makeText( getActivity().getApplication(), "Your account have been deleted", Toast.LENGTH_SHORT).show();
+
+                            Intent intent = new Intent( getActivity().getApplication(), LoginActivity.class );
+                            startActivity( intent );
+                        }
+                    } );
+
 
                 }
             } );
